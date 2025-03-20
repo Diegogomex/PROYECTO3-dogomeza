@@ -11,10 +11,11 @@ class Heladeria:
         Parámetro:
         - nombre (str): Nombre de la heladería.
         """
-        self.__nombre = nombre
-        self.__productos = []
-        self.__inventario = []
-        self.__ventas_dia = 0
+        self._nombre = nombre
+        self._productos = []
+        self._productos_ids =[]
+        self._inventario = []
+        self._ventas_dia = 0
 
     def producto_mas_rentable(self) -> Producto:
         """
@@ -22,9 +23,9 @@ class Heladeria:
         Retorna:
         - Producto: El producto más rentable.
         """
-        if not self.__productos:
+        if not self._productos:
             return None
-        return max(self.__productos, key=lambda p: p.calcular_rentabilidad())
+        return max(self._productos, key=lambda p: p.calcular_rentabilidad())
 
     def agregar_producto(self, producto: Producto) -> None:
         """
@@ -32,9 +33,11 @@ class Heladeria:
         Parámetro:
         - producto (Producto): Producto a agregar.
         """
-        if len(self.__productos) >= 4:
+        if len(self._productos) >= 4:
             raise ValueError("Ya hay 4 productos, no se pueden agregar más.")
-        self.__productos.append(producto)
+        if producto.id not in self._productos_ids:
+            print(f"Agregando ID a la lista interna: {producto.id}")
+            self._productos_ids.append(producto.id)
 
     def eliminar_producto(self, producto: Producto) -> None:
         """
@@ -42,15 +45,16 @@ class Heladeria:
         Parámetro:
         - producto (Producto): Producto a eliminar.
         """
-        self.__productos.remove(producto)
+        if producto.id in self._productos_ids:
+            self._productos_ids.remove(producto.id)
 
-    def listar_productos(self) -> list:
+    def listar_productos(self, session) -> list:
         """
         Lista todos los productos de la heladería.
         Retorna:
         - list: Lista de productos.
         """
-        return self.__productos
+        return session.query(Producto).filter(Producto.id.in_(self._productos_ids)).all()
 
     def vender(self, producto: Producto, session) -> str:
         """
@@ -61,11 +65,13 @@ class Heladeria:
         Retorna:
         - str: Mensaje de éxito o error.
         """
-        if not self.__productos:
+        if not self._productos_ids:
             raise ValueError("No hay productos disponibles en la heladería.")
+        print(f"Productos en Heladeria: {[p.id for p in self._productos]}")
+        print(f"ID del producto a vender: {producto.id}")
 
         # Verificar que el producto pertenezca a la heladería usando su ID
-        if producto.id not in [p.id for p in self.__productos]:
+        if producto.id not in self._productos_ids: 
             raise ValueError(f"El producto '{producto.nombre}' no está disponible en esta heladería.")
 
         # Definir las cantidades necesarias
@@ -115,7 +121,7 @@ class Heladeria:
                     print(f"- Complemento ({ingrediente.nombre}): Nuevo inventario: {ingrediente.inventario}")
 
         # Sumar a las ventas del día el precio del producto
-        self.__ventas_dia += producto.precio_publico
+        self._ventas_dia += producto.precio_publico
 
         # Confirmar la transacción
         try:
@@ -132,7 +138,7 @@ class Heladeria:
         Parámetro:
         - ingrediente (Ingrediente): Ingrediente a agregar.
         """
-        self.__inventario.append(ingrediente)
+        self._inventario.append(ingrediente)
 
     def listar_ingredientes(self) -> list:
         """
@@ -140,12 +146,12 @@ class Heladeria:
         Retorna:
         - list: Lista de ingredientes.
         """
-        return self.__inventario
+        return self._inventario
 
     @property
     def nombre(self) -> str:
         """Devuelve el valor del atributo privado 'nombre'."""
-        return self.__nombre
+        return self._nombre
 
     @nombre.setter
     def nombre(self, value: str) -> None:
@@ -154,14 +160,14 @@ class Heladeria:
         Valida que el valor enviado corresponda al tipo de dato del atributo.
         """
         if isinstance(value, str):
-            self.__nombre = value
+            self._nombre = value
         else:
             raise ValueError("Expected str")
 
     @property
     def productos(self) -> list:
         """Devuelve el valor del atributo privado 'productos'."""
-        return self.__productos
+        return self._productos
 
     @productos.setter
     def productos(self, value: list) -> None:
@@ -172,14 +178,14 @@ class Heladeria:
         if len(value) > 4:
             raise ValueError("No se pueden tener más de 4 productos.")
         if all(isinstance(producto, Producto) for producto in value):
-            self.__productos = value
+            self._productos = value
         else:
             raise ValueError("Expected list of Producto")
 
     @property
     def inventario(self) -> list:
         """Devuelve el valor del atributo privado 'inventario'."""
-        return self.__inventario
+        return self._inventario
 
     @inventario.setter
     def inventario(self, value: list) -> None:
@@ -188,14 +194,14 @@ class Heladeria:
         Valida que el valor enviado corresponda al tipo de dato del atributo.
         """
         if all(isinstance(ingrediente, Ingrediente) for ingrediente in value):
-            self.__inventario = value
+            self._inventario = value
         else:
             raise ValueError("Expected list of Ingrediente")
 
     @property
     def ventas_dia(self) -> int:
         """Devuelve el valor del atributo privado 'ventas_dia'."""
-        return self.__ventas_dia
+        return self._ventas_dia
 
     @ventas_dia.setter
     def ventas_dia(self, value: int) -> None:
@@ -204,6 +210,6 @@ class Heladeria:
         Valida que el valor enviado corresponda al tipo de dato del atributo.
         """
         if isinstance(value, int):
-            self.__ventas_dia = value
+            self._ventas_dia = value
         else:
             raise ValueError("Expected int")

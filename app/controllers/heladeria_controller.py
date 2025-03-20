@@ -11,9 +11,13 @@ class HeladeriaController:
         self.app = app
         self.db = db
         self.heladeria = Heladeria("DG Heladería")
+        self._productos_agregados = False 
         self._agregar_productos()
 
     def _agregar_productos(self):
+        if self._productos_agregados:  # Si los productos ya fueron agregados, salir
+            return
+                
         with self.app.app_context():
             # Verificar si ya existen productos en la base de datos
             if Producto.query.count() == 0:
@@ -42,7 +46,14 @@ class HeladeriaController:
             # Agregar productos a la heladería (recuperados desde la base de datos)
             productos = Producto.query.options(joinedload(Producto.ingredientes)).all()
             for producto in productos:
-                self.heladeria.agregar_producto(producto)
+                # Verificar si el producto ya está en la lista interna
+                if producto.id not in self.heladeria._productos_ids: 
+                    print(f"Agregando producto a Heladeria: ID={producto.id}, Nombre={producto.nombre}")
+                    self.heladeria.agregar_producto(producto)
+
+        print(f"Productos en Heladeria después de agregar: {self.heladeria._productos_ids}")
+
+        self._productos_agregados = True
 
     def listar_productos(self):
         """
