@@ -1,7 +1,7 @@
 from flask import Flask
 from app.config.config import Config
 from app.config.routes import register_routes
-from app.config.db import db
+from app.config.db import db, init_db
 from app.config.user_data import crear_usuarios_predeterminados
 from app.controllers.heladeria_controller import HeladeriaController
 from app.controllers.ventas_controller import crear_bp_ventas
@@ -12,7 +12,7 @@ def create_app():
     app = Flask(__name__, template_folder="views")
     app.config.from_object(Config)
     
-    db.init_app(app)
+    init_db(app)
     login_manager.init_app(app)
     login_manager.login_view ="home.login"
 
