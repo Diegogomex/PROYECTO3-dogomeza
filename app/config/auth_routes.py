@@ -4,10 +4,6 @@ from flask_login import login_user, logout_user
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-@auth_bp.route("/test", methods=["POST"])
-def test():
-    return jsonify({"mensaje": "Prueba exitosa"}), 200
-
 @auth_bp.route("/login", methods=["POST"])
 def login():
     if request.is_json:

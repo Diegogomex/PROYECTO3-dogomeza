@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, abort
-from flask_login import login_required, current_user
+#from flask_login import login_required, current_user
 from app.models.producto import Producto
 from app.models.ingrediente import Ingrediente
 from app.models. heladeria import Heladeria
@@ -49,21 +49,21 @@ def obtener_producto_por_nombre(nombre):
     return jsonify({"id": producto.id, "nombre": producto.nombre, "precio_publico": producto.precio_publico})
 
 @api_bp.route("/productos/<int:producto_id>/calorias", methods=["GET"])
-@login_required
+#@login_required
 def obtener_calorias_producto(producto_id):
     """Consultar las calorías de un producto por su ID."""
-    if not current_user.is_authenticated or (not current_user.es_admin and not current_user.es_empleado):
-        abort (401) #no autorizado
+    #if not current_user.is_authenticated or (not current_user.es_admin and not current_user.es_empleado):
+    #    abort (401) #no autorizado
     producto = get_producto_id(producto_id)
     calorias = producto.calcular_calorias()
     return jsonify({"id": producto.id, "nombre": producto.nombre, "calorias": calorias})
 
 @api_bp.route("/productos/<int:producto_id>/rentabilidad", methods=["GET"])
-@login_required
+#@login_required
 def obtener_rentabilidad_producto(producto_id):
     """Consultar la rentabilidad de un producto por su ID."""
-    if not current_user.is_authenticated or not current_user.es_admin:
-        abort (401) #no autorizado
+    #if not current_user.is_authenticated or not current_user.es_admin:
+    #    abort (401) #no autorizado
     producto = get_producto_id(producto_id)
     rentabilidad = producto.calcular_rentabilidad()
     return jsonify({"id": producto.id, "nombre": producto.nombre, "rentabilidad": rentabilidad})
@@ -76,11 +76,11 @@ def obtener_costo_producto(producto_id):
     return jsonify({"id": producto.id, "nombre": producto.nombre, "costo_produccion": costo})
 
 @api_bp.route("/productos/<int:producto_id>/vender", methods=["POST"])
-@login_required
+#@login_required
 def vender_producto_api(producto_id):
     """Vender un producto por su ID."""
-    if not current_user.is_authenticated or (not current_user.es_admin and not current_user.es_empleado):
-        abort (401) #no autorizado
+    #if not current_user.is_authenticated or (not current_user.es_admin and not current_user.es_empleado):
+    #    abort (401) #no autorizado
     heladeria_controller = get_heladeria_controller()
     producto = get_producto_id(producto_id)
     try:

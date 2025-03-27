@@ -3,7 +3,6 @@ from app.config.config import Config
 from app.config.routes import register_routes
 from app.config.db import db, init_db
 from app.config.user_data import crear_usuarios_predeterminados
-from werkzeug.middleware.proxy_fix import ProxyFix
 from app.controllers.heladeria_controller import HeladeriaController
 from app.controllers.ventas_controller import crear_bp_ventas
 from app.config.auth import login_manager
@@ -13,8 +12,6 @@ def create_app():
     app = Flask(__name__, template_folder="views")
     app.config.from_object(Config)
     
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-
     init_db(app)
     login_manager.init_app(app)
     login_manager.login_view ="home.login"
