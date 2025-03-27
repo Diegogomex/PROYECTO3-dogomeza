@@ -10,9 +10,13 @@ def test():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
+    if request.is_json:
+        data = request.get_json()
+        username = data.get("username")
+        password = data.get("password")
+    else:
+        username = request.form.get("username")
+        password = request.form.get("password")
 
     if not username or not password:
         return jsonify({"error": "Nombre de usuario y contraseña son requeridos"}), 400
